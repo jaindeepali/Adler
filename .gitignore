@@ -1,2 +1,3 @@
 *.pyc
-data/
+Adler/data/*
+config.json
