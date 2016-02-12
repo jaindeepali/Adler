@@ -14,6 +14,7 @@ class Feature():
 			self.feature_list = pickle.load(open(self.listing_data_object_path))
 		else:
 			self.get_list()
+			self.save_list()
 		return self.feature_list[id]
 
 	def get_list(self):
