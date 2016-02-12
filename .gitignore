@@ -1,3 +1,4 @@
 *.pyc
 Adler/data/*
+Adler/data_objects/*
 config.json
