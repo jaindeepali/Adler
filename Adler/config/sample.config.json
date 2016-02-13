@@ -1,0 +1,5 @@
+{
+	"data_dir" : "PATH TO YOUR DATA DIRECTORY",
+	"data_url" : "http://techtc.cs.technion.ac.il/techtc300/data/techtc300_preprocessed.zip",
+	"category_listing_url" : "http://techtc.cs.technion.ac.il/techtc300/techtc300.html"
+}

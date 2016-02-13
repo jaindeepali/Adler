@@ -17,5 +17,8 @@ setup(
     url = "https://github.com/jaindeepali/Adler",
     install_requires=requirements,
     packages=['Adler'],
+    package_data={
+        'Adler': ['config/config.json']
+    },
     long_description=read('README.md'),
 )

@@ -4,9 +4,10 @@ Ready-to-use text classification corpus generation from [TechTC-300 Test Collect
 
 ### Setup
 
-* `git clone https://github.com/jaindeepali/Adler`
-* `virtualenv .venv`
-* `source .venv/bin/activate`
-* `python setup.py install`
-* `./scripts/init.sh`
-* `/scripts/generate.py`
+* Clone the repo: `git clone https://github.com/jaindeepali/Adler`
+* Create config file from sample: `cp Adler/config/sample.config.json Adler/config/config.json`
+* Open config.json and edit the path to the data directory
+* Create python virtual environment: `virtualenv .venv`
+* Activate virtual environment: `source .venv/bin/activate`
+* Install Adler package: `python setup.py install`
+* Run script to generate dataset: `/scripts/generate.py`

@@ -3,15 +3,15 @@ import pickle
 
 from bs4 import BeautifulSoup as BS
 
+from Base import Base
 
-class Category():
+
+class Category(Base):
 
 	def __init__(self):
-		dir = os.path.dirname(__file__)
-		self.listing_document_path = os.path.join(
-			dir, 'data', 'Tech300Categories.html')
+		Base.__init__(self)
 		self.listing_data_object_path = os.path.join(
-			dir, 'data_objects', 'category_list.p')
+			self.data_object_path, 'category_list.p')
 		self.category_list = {}
 
 	def from_id(self, id):
@@ -24,7 +24,7 @@ class Category():
 		return self.category_list[id]
 
 	def get_list(self):
-		listing_document = BS(open(self.listing_document_path, 'r').read())
+		listing_document = BS(open(self.category_listing_document_path, 'r').read())
 		for row in listing_document.select('tr'):
 			for category_element in row.select('a'):
 				category_url = category_element['href']

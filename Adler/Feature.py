@@ -1,18 +1,17 @@
 import os
 import pickle
 
+from Base import Base
 
-class Feature():
+class Feature(Base):
 
 	def __init__(self, exp):
-		dir = os.path.dirname(__file__)
+		Base.__init__(self)
 		self.exp = exp
 		self.listing_document_path = os.path.join(
-			dir, 'data', 'techtc300_preprocessed',
-			exp, 'features.idx')
+			self.raw_data_path, exp, 'features.idx')
 		self.listing_data_object_path = os.path.join(
-			dir, 'data_objects',
-			self.exp + '_feature_list.p')
+			self.data_object_path, self.exp + '_feature_list.p')
 		self.feature_list = []
 
 	def from_id(self, id):
@@ -34,6 +33,10 @@ class Feature():
 		self.get_list()
 		pickle.dump(self.feature_list, open(
 			self.listing_data_object_path, 'wb'))
+
+	def destroy_list(self):
+		if os.path.exists(self.listing_data_object_path):
+			os.remove(self.listing_data_object_path)
 
 if __name__ == '__main__':
 	ob = Feature('Exp_1622_42350')
