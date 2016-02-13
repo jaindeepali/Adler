@@ -74,10 +74,14 @@ class Document(Base):
 		
 		with open(self.listing_document_path, 'r') as f:
 			lines = [line.strip() for line in f]
-			lines = [line for line in lines if (line and line[0] != '#')]
+			lines = [line for line in lines[2:] if line]
 			
-			for idx, document in enumerate(lines):
-				elements = document.split(' ')
+			document_id = ''
+			for line in lines:
+				elements = line.split(' ')
+				if elements[0] == '#':
+					document_id = elements[3]
+					continue
 				
 				category = self._get_category(elements[0])
 				if category == 'NA':
@@ -85,10 +89,11 @@ class Document(Base):
 				
 				sample = self._get_features(ob, elements[1:])
 				sample['Category'] = category
+				sample['Id'] = document_id
 
 				self.samples = self.samples.append(sample, ignore_index=True)
 				
-				print "Document #" + str(idx + 1) + " parsed"
+				print "Document #" + document_id + " parsed"
 			
 			self.samples = self.samples.fillna(0)
 		
