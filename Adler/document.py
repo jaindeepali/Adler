@@ -1,79 +1,83 @@
-import pandas as pd
-import pickle
 import os
 import re
+import pickle
+
+import pandas as pd
 from nltk.corpus import stopwords
-from nltk.stem.porter import *
+from nltk.stem.porter import PorterStemmer
+
 from feature import Feature
 from category import Category
+
 
 class Document():
 
 	def __init__(self, exp):
 		dir = os.path.dirname(__file__)
 		self.exp = exp
-		self.listing_document_path = os.path.join(dir, 'data', 'techtc300_preprocessed', exp, 'vectors.dat')
-		self.samples_data_object_path = os.path.join(dir, 'data_objects', 'samples', self.exp + '_samples.p')
+		self.listing_document_path = os.path.join(
+			dir, 'data', 'techtc300_preprocessed', exp, 'vectors.dat')
+		self.samples_data_object_path = os.path.join(
+			dir, 'data_objects', 'samples', self.exp + '_samples.p')
 		self.feature_list = []
-		self.getCategories()
+		self.get_categories()
 		self.stop = stopwords.words('english')
 		self.stop.append('')
 		self.stemmer = PorterStemmer()
 		self.samples = pd.DataFrame()
 
-	def getCategories(self):
-		_ , cat1, cat2 = self.exp.split('_')
+	def get_categories(self):
+		__, cat1, cat2 = self.exp.split('_')
 		ob = Category()
-		self.category1 = ob.fromId(cat1)
-		self.category2 = ob.fromId(cat2)
-		return
+		self.category1 = ob.from_id(cat1)
+		self.category2 = ob.from_id(cat2)
 
-	def _getFeatures(self, flist):
+	def _get_features(self, flist):
 		feature_list = {}
 		ob = Feature(self.exp)
 		for l in flist:
 			fid, freq = l.split(':')
-			feature = ob.fromId(int(fid) - 1)
+			feature = ob.from_id(int(fid) - 1)
+			# Keep only digits
 			feature = re.sub("[^a-zA-Z]", "", feature)
+			# Remove stop words
 			if feature not in self.stop:
+				# Stemming reduces derivatives to the base word
 				feature = self.stemmer.stem(feature)
 				if feature in feature_list:
 					feature_list[feature] += int(freq)
 				else:
 					feature_list[feature] = int(freq)
+		
 		return pd.DataFrame([feature_list])
 
-	def _getTrainingSample(self, category, features):
+	def _get_training_sample(self, category, features):
 		if category == '+1':
 			features['Category'] = self.category1
 		else:
 			features['Category'] = self.category2
 		return features
 
-	def parseAllDocs(self):
+	def parse_all_docs(self):
 		print "Parsing document in " + self.exp
-		i = 1
 		with open(self.listing_document_path, 'r') as f:
 			lines = [line.strip() for line in f]
 			lines = [line for line in lines if (line and line[0] != '#')]
-			for document in lines:
+			
+			for idx, document in enumerate(lines):
 				elements = document.split(' ')
 				category = elements[0]
-				features = self._getFeatures(elements[1:])
-				sample = self._getTrainingSample(category, features)
+				features = self._get_features(elements[1:])
+				sample = self._get_training_sample(category, features)
 				self.samples = self.samples.append(sample, ignore_index=True)
-				print "Document #" + str(i) + " parsed"
-				if i == 4:
-					break
-				i = i + 1
+				print "Document #" + str(idx + 1) + " parsed"
+			
 			self.samples = self.samples.fillna(0)
-		return
 
-	def saveSamples(self):
-		self.parseAllDocs()
+	def save_samples(self):
+		self.parse_all_docs()
 		pickle.dump(self.samples, open(self.samples_data_object_path, 'wb'))
-		return
 
 if __name__ == '__main__':
 	ob = Document('Exp_1622_42350')
-	ob.saveSamples()
+	ob.save_samples()
