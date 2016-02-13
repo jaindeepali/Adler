@@ -7,20 +7,25 @@ class Feature(Base):
 
 	def __init__(self, exp):
 		Base.__init__(self)
+
 		self.exp = exp
+		
 		self.listing_document_path = os.path.join(
 			self.raw_data_path, exp, 'features.idx')
 		self.listing_data_object_path = os.path.join(
 			self.data_object_path, self.exp + '_feature_list.p')
+		
 		self.feature_list = []
 
 	def from_id(self, id):
 		if not self.feature_list:
+			
 			if os.path.exists(self.listing_data_object_path):
 				self.feature_list = pickle.load(
 					open(self.listing_data_object_path))
 			else:
 				self.save_list()
+		
 		return self.feature_list[id]
 
 	def get_list(self):
@@ -31,6 +36,7 @@ class Feature(Base):
 
 	def save_list(self):
 		self.get_list()
+		
 		pickle.dump(self.feature_list, open(
 			self.listing_data_object_path, 'wb'))
 
