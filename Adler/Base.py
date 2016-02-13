@@ -24,10 +24,12 @@ class Base(object):
 			self.data_path, 'data_objects', 'samples')
 		self.category_listing_document_path = os.path.join(
 			self.data_path, 'category_list.html')
+		self.final_dataset_path = os.path.join(self.data_path, 'final_dataset')
 
 		# Create data paths
 		self._mkdir_p(self.samples_path)
 		self._mkdir_p(self.raw_data_path)
+		self._mkdir_p(self.final_dataset_path)
 
 	def fetch_data(self):
 		print "Downloading data..."
