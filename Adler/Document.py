@@ -1,10 +1,8 @@
 import os
-import re
 import pickle
+import time
 
 import pandas as pd
-from nltk.corpus import stopwords
-from nltk.stem.porter import PorterStemmer
 
 from Base import Base
 from Feature import Feature
@@ -13,10 +11,11 @@ from Category import Category
 
 class Document(Base):
 
-	def __init__(self, exp):
+	def __init__(self, exp, ignore_duplicate_category=False):
 		Base.__init__(self)
 		
 		self.exp = exp
+		self.ignore_duplicate_category = ignore_duplicate_category
 		
 		self.listing_document_path = os.path.join(
 			self.raw_data_path, exp, 'vectors.dat')
@@ -28,11 +27,11 @@ class Document(Base):
 		self.get_categories()
 
 	def get_categories(self):
-		__, cat1, cat2 = self.exp.split('_')
+		__, self.category_id1, self.category_id2 = self.exp.split('_')
 		
 		ob = Category()
-		self.category1 = ob.from_id(cat1)
-		self.category2 = ob.from_id(cat2)
+		self.category1 = ob.from_id(self.category_id1)
+		self.category2 = ob.from_id(self.category_id2)
 
 	def _get_features(self, ob, flist):
 		feature_list = {}
@@ -41,36 +40,32 @@ class Document(Base):
 			fid, freq = l.split(':')
 			feature = ob.from_id(int(fid) - 1)
 			
-			# Keep only digits
-			feature = re.sub("[^a-zA-Z]", "", feature)
+			feature = ob.filter_feature(feature)
+			if not feature:
+				continue
 			
-			# Remove stop words
-			stop = stopwords.words('english')
-			stop.append('')
-			
-			if feature not in stop:
-				
-				# Stemming reduces derivatives to the base word
-				stemmer = PorterStemmer()
-				feature = stemmer.stem(feature)
-				
-				if feature in feature_list:
-					feature_list[feature] += int(freq)
-				else:
-					feature_list[feature] = int(freq)
+			if feature in feature_list:
+				feature_list[feature] += int(freq)
+			else:
+				feature_list[feature] = int(freq)
 		
 		return pd.DataFrame([feature_list])
 
 	def _get_category(self, category):
 		if category == '+1':
-			return self.category1
+			return (self.category_id1, self.category1)
 		else:
-			return self.category2
+			return (self.category_id2, self.category2)
 
 	def parse_all_docs(self):
-		ob = Feature(self.exp)
+		fob = Feature(self.exp)
 		
+		cob = Category()
+		cob.get_category_done_list()
+
+		stime = time.time()
 		print "Parsing documents in " + self.exp
+		print "Start time: " + time.ctime(stime)
 		
 		with open(self.listing_document_path, 'r') as f:
 			lines = [line.strip() for line in f]
@@ -83,23 +78,33 @@ class Document(Base):
 					document_id = elements[3]
 					continue
 				
-				category = self._get_category(elements[0])
+				c_id, category = self._get_category(elements[0])
+				
 				if category == 'NA':
 					continue
 				
-				sample = self._get_features(ob, elements[1:])
+				if c_id in cob.category_done_list and \
+						not self.ignore_duplicate_category:
+					continue
+				
+				sample = self._get_features(fob, elements[1:])
 				sample['Category'] = category
 				sample['Id'] = document_id
 
 				self.samples = self.samples.append(sample, ignore_index=True)
 				
 				print "Document #" + document_id + " parsed"
-			
+
 			self.samples = self.samples.fillna(0)
 		
+		etime = time.time()
 		print "Documents in " + self.exp + ' parsed'
+		print "End time: " + time.ctime(etime)
+		print "Time taken: " + str(etime - stime) + " seconds"
 
-		ob.destroy_list()
+		cob.update_category_done_list([self.category_id1, self.category_id2])
+		
+		fob.destroy_list()
 
 	def save_samples(self):
 		self.parse_all_docs()
@@ -108,5 +113,5 @@ class Document(Base):
 			pickle.dump(self.samples, open(self.samples_data_object_path, 'wb'))
 
 if __name__ == '__main__':
-	ob = Document('Exp_1622_42350')
+	ob = Document('Exp_100241_17900', ignore_duplicate_category=True)
 	ob.save_samples()

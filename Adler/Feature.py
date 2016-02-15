@@ -1,5 +1,9 @@
 import os
+import re
 import pickle
+
+from nltk.corpus import stopwords
+from nltk.stem.porter import PorterStemmer
 
 from Base import Base
 
@@ -27,6 +31,35 @@ class Feature(Base):
 				self.save_list()
 		
 		return self.feature_list[id]
+
+	def filter_feature(self, feature):
+		# Reasonable word length range
+		if len(feature) < 2 or len(feature) > 40:
+			return ''
+
+		# Keep only letters
+		feature = re.sub("[^a-zA-Z]", "", feature)
+		
+		# Remove words with the same letter more than 2 times in a row
+		if re.search(r"(.)\1{2,}", feature):
+			return ''
+
+		# Remove words with more than 7 consecutive consonants
+		consonant_groups = re.findall('[bcdfghjklmnpqrstvwxz]+', feature)
+		if consonant_groups:
+			if max([len(w) for w in consonant_groups]) > 7:
+				return ''
+
+		# Remove stop words
+		stop = stopwords.words('english')
+		if feature in stop:
+			return ''
+
+		# Stemming reduces derivatives to the base word
+		stemmer = PorterStemmer()
+		feature = stemmer.stem(feature)
+
+		return feature
 
 	def get_list(self):
 		with open(self.listing_document_path, 'r') as f:

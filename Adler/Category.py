@@ -30,8 +30,11 @@ class Category(Base):
 		
 		self.listing_data_object_path = os.path.join(
 			self.data_object_path, 'category_list.p')
-		
+		self.category_done_list_object_path = os.path.join(
+			self.data_path, 'category_done_list.p')
+
 		self.category_list = {}
+		self.category_done_list = []
 
 	def from_id(self, id):
 		if not self.category_list:
@@ -77,6 +80,20 @@ class Category(Base):
 
 		pickle.dump(self.category_list, open(
 			self.listing_data_object_path, 'wb'))
+
+	def get_category_done_list(self):
+		if os.path.exists(self.category_done_list_object_path):
+			self.category_done_list = pickle.load(open(
+				self.category_done_list_object_path, 'r'))
+
+	def update_category_done_list(self, clist):
+		self.category_done_list.extend(clist)
+		pickle.dump(self.category_done_list, open(
+			self.category_done_list_object_path, 'wb'))
+
+	def destroy_category_done_list(self):
+		if os.path.exists(self.category_done_list_object_path):
+			os.remove(self.category_done_list_object_path)
 
 if __name__ == '__main__':
 	ob = Category()
