@@ -5,9 +5,10 @@ import pickle
 
 import pandas as pd
 
-from Adler import Base, Document
+from Adler import Base, Document, Category
 
 BaseOb = Base()
+CatOb = Category()
 
 def download_data():
 	BaseOb.fetch_data()
@@ -29,33 +30,43 @@ def merge_samples():
 	print 'Merging samples...'
 	print "Start time: " + time.ctime(stime)
 	
-	samples = pd.DataFrame()
-
-	sample_files = glob.glob(os.path.join(BaseOb.samples_path, '*'))
-	for sample_file in sample_files:
-		sample = pickle.load(open(sample_file))
-		samples = samples.append(sample, ignore_index=True)
-	samples = samples.fillna(0)
+	categories = CatOb.categories
+	for category in categories:
+		print 'Processing category ' + category
+		samples = pd.DataFrame()
+		
+		sample_files = glob.glob(os.path.join(BaseOb.samples_path, '*'))
+		for sample_file in sample_files:
+			
+			cat_id1 = sample_file.split('_')[-3]
+			cat_id2 = sample_file.split('_')[-2]
+			
+			if CatOb.from_id(cat_id1) == category or \
+				CatOb.from_id(cat_id2) == category:
+				
+				sample = pickle.load(open(sample_file))
+				sample = sample.loc[sample['Category'] == category]
+				samples = samples.append(sample, ignore_index=True)
+		
+		samples = samples.fillna(0)
+		save_dataset(samples, category)
 	
 	etime = time.time()
 	print 'Samples merged'
 	print "End time: " + time.ctime(etime)
 	print "Time taken: " + str(etime - stime) + " seconds"
-	
-	return samples
 
-def save_dataset(data):
+def save_dataset(data, name):
 	print 'Saving dataset...'
 	destination = BaseOb.final_dataset_path
-	with open(os.path.join(destination, 'final_dataset.csv'), 'a') as f:
-		data.to_csv(f, header=False)
+	data.to_csv(os.path.join(destination, name + '.csv'), header=False)
 	print 'Dataset saved'
 
 def main():
-	download_data()
-	save_all_samples()
-	data = merge_samples()
-	save_dataset(data)
+	# download_data()
+	# save_all_samples()
+	merge_samples()
+	# save_dataset(data)
 
 if __name__ == '__main__':
 	main()

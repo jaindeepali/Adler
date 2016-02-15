@@ -20,7 +20,13 @@ CATEGORIES = {
 	'News': ['News'],
 	'Science': ['Science'],
 	'Publications': ['Publications'],
-	'Business': ['Business']
+	'Agriculture_and_Forestry': ['Agriculture_and_Forestry'],
+	'Business_Services': ['Business_Services'],
+	'Construction_and_Maintenance': ['Construction_and_Maintenance'],
+	'Consumer_Goods_and_Services': ['Consumer_Goods_and_Services'],
+	'Employment': ['Employment'],
+	'Industrial_Goods_and_Services': ['Industrial_Goods_and_Services'],
+	'Textiles_and_Nonwovens': ['Textiles_and_Nonwovens']
 }
 
 class Category(Base):
@@ -35,6 +41,7 @@ class Category(Base):
 
 		self.category_list = {}
 		self.category_done_list = []
+		self.categories = CATEGORIES
 
 	def from_id(self, id):
 		if not self.category_list:
