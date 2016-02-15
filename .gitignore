@@ -10,3 +10,5 @@ Adler/data_objects/*
 config.json
 
 *.csv
+
+.venv/
