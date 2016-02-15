@@ -1,5 +1,6 @@
 import os
 import glob
+import time
 import pickle
 
 import pandas as pd
@@ -24,7 +25,9 @@ def save_all_samples():
 
 def merge_samples():
 
+	stime = time.time()
 	print 'Merging samples...'
+	print "Start time: " + time.ctime(stime)
 	
 	samples = pd.DataFrame()
 
@@ -34,7 +37,10 @@ def merge_samples():
 		samples = samples.append(sample, ignore_index=True)
 	samples = samples.fillna(0)
 	
+	etime = time.time()
 	print 'Samples merged'
+	print "End time: " + time.ctime(etime)
+	print "Time taken: " + str(etime - stime) + " seconds"
 	
 	return samples
 
