@@ -1,4 +1,4 @@
-BeautifulSoup==3.2.1
+BeautifulSoup4==4.2.1
 nltk==3.0.2
 pandas==0.13.1
 numpy==1.9.2
