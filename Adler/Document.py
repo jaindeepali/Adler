@@ -113,5 +113,5 @@ class Document(Base):
 			pickle.dump(self.samples, open(self.samples_data_object_path, 'wb'))
 
 if __name__ == '__main__':
-	ob = Document('Exp_100241_17900', ignore_duplicate_category=True)
+	ob = Document('Exp_1092_135724', ignore_duplicate_category=True)
 	ob.save_samples()
