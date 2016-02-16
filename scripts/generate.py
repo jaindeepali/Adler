@@ -46,6 +46,13 @@ def merge_samples():
 				
 				sample = pickle.load(open(sample_file))
 				sample = sample.loc[sample['Category'] == category]
+
+				s = sample.sum(numeric_only=True)
+
+				# Keep only half most frequent features
+				sample = sample[s[ s >= s.median() ].index]
+
+				sample['Category'] = category
 				samples = samples.append(sample, ignore_index=True)
 		
 		samples = samples.fillna(0)
