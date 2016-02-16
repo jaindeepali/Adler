@@ -50,8 +50,7 @@ def merge_samples():
 				s = sample.sum(numeric_only=True)
 
 				# Keep only half most frequent features
-				sample = sample[s[ s > 0 ].index]
-				sample = sample[s[ s >= s.median() ].index]
+				sample = sample[s[ s >= max(s.median(), 0) ].index]
 
 				sample['Category'] = category
 				samples = samples.append(sample, ignore_index=True)
