@@ -59,7 +59,7 @@ def merge_samples():
 def save_dataset(data, name):
 	print 'Saving dataset...'
 	destination = BaseOb.final_dataset_path
-	data.to_csv(os.path.join(destination, name + '.csv'), header=False)
+	data.to_csv(os.path.join(destination, name + '.csv'))
 	print 'Dataset saved'
 
 def main():
