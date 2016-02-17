@@ -80,7 +80,7 @@ def create_dataset():
 	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
 	for data_file in data_files:
 		
-		sample = read_csv(data_file, index_col=0)
+		sample = pd.read_csv(data_file, index_col=0)
 		samples = samples.append(sample, ignore_index=True)
 	
 	samples = samples.fillna(0)
