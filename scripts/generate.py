@@ -56,24 +56,46 @@ def merge_samples():
 				samples = samples.append(sample, ignore_index=True)
 		
 		samples = samples.fillna(0)
-		save_dataset(samples, category)
+		_save_dataset(samples, category)
 	
 	etime = time.time()
 	print 'Samples merged'
 	print "End time: " + time.ctime(etime)
 	print "Time taken: " + str(etime - stime) + " seconds"
 
-def save_dataset(data, name):
+def _save_dataset(data, name):
 	print 'Saving dataset...'
 	destination = BaseOb.final_dataset_path
 	data.to_csv(os.path.join(destination, name + '.csv'))
 	print 'Dataset saved'
 
+def create_dataset():
+
+	stime = time.time()
+	print 'Creating dataset...'
+	print "Start time: " + time.ctime(stime)
+	
+	samples = pd.DataFrame()
+	
+	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
+	for data_file in data_files:
+		
+		sample = read_csv(data_file, index_col=0)
+		samples = samples.append(sample, ignore_index=True)
+	
+	samples = samples.fillna(0)
+	_save_dataset(samples, 'final_dataset')
+	
+	etime = time.time()
+	print 'Database created'
+	print "End time: " + time.ctime(etime)
+	print "Time taken: " + str(etime - stime) + " seconds"
+
 def main():
 	# download_data()
 	# save_all_samples()
-	merge_samples()
-	# save_dataset(data)
+	# merge_samples()
+	create_dataset()
 
 if __name__ == '__main__':
 	main()
