@@ -56,7 +56,7 @@ def merge_samples():
 				samples = samples.append(sample, ignore_index=True)
 		
 		samples = samples.fillna(0)
-		_save_dataset(samples, category)
+		_save_dataset(samples, os.path.join('final_dataset', category))
 	
 	etime = time.time()
 	print 'Samples merged'
@@ -65,9 +65,42 @@ def merge_samples():
 
 def _save_dataset(data, name):
 	print 'Saving dataset...'
-	destination = BaseOb.final_dataset_path
+	destination = BaseOb.data_path
 	data.to_csv(os.path.join(destination, name + '.csv'))
 	print 'Dataset saved'
+
+def feature_selection():
+	
+	stime = time.time()
+	print 'Selecting features...'
+	print "Start time: " + time.ctime(stime)
+
+	samples = pd.DataFrame()
+	
+	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
+	for data_file in data_files:
+		
+		data = pd.read_csv(data_file, index_col=0)
+		
+		category = data['Category'][0]
+		print 'Processing ' + category
+
+		sum_vector = data.sum(numeric_only=True)
+		if sum_vector.min() == 1 :
+			sum_vector = sum_vector[sum_vector >= sum_vector.median()]
+		
+		count_vector = data[data != 0].count(numeric_only=True)
+		count_vector = count_vector[sum_vector.index]
+		count_vector = count_vector / data.shape[0]
+
+		samples = samples.append(count_vector, ignore_index=True)
+
+	_save_dataset(samples, 'feature_selection')
+
+	etime = time.time()
+	print 'Features selected'
+	print "End time: " + time.ctime(etime)
+	print "Time taken: " + str(etime - stime) + " seconds"
 
 def create_dataset():
 
@@ -84,6 +117,9 @@ def create_dataset():
 		sample = pd.read_csv(data_file, index_col=0)
 
 		category = sample['Category'][0]
+
+		print 'Processing ' + category
+
 		labels.extend([category] * sample.shape[0])
 
 		sample = sample.iloc[:,1:].to_sparse(fill_value=0)
@@ -102,7 +138,8 @@ def main():
 	# download_data()
 	# save_all_samples()
 	# merge_samples()
-	create_dataset()
+	# create_dataset()
+	feature_selection()
 
 if __name__ == '__main__':
 	main()
