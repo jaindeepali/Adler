@@ -75,16 +75,23 @@ def create_dataset():
 	print 'Creating dataset...'
 	print "Start time: " + time.ctime(stime)
 	
-	samples = pd.DataFrame()
+	samples = pd.SparseDataFrame()
+	labels = []
 	
 	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
 	for data_file in data_files:
 		
 		sample = pd.read_csv(data_file, index_col=0)
+
+		category = sample['Category'][0]
+		labels.extend([category] * sample.shape[0])
+
+		sample = sample.iloc[:,1:].to_sparse(fill_value=0)
 		samples = samples.append(sample, ignore_index=True)
 	
 	samples = samples.fillna(0)
 	_save_dataset(samples, 'final_dataset')
+	_save_dataset(labels, 'labels')
 	
 	etime = time.time()
 	print 'Database created'
