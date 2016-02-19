@@ -95,6 +95,7 @@ def feature_selection():
 
 		samples = samples.append(count_vector, ignore_index=True)
 
+	samples = samples.fillna(0)
 	_save_dataset(samples, 'feature_selection')
 
 	etime = time.time()
@@ -125,7 +126,8 @@ def create_dataset():
 		sample = sample.iloc[:,1:].to_sparse(fill_value=0)
 		samples = samples.append(sample, ignore_index=True)
 	
-	samples = samples.fillna(0)
+	# samples = samples.fillna(0)
+	print 'Saving database'
 	_save_dataset(samples, 'final_dataset')
 	_save_dataset(labels, 'labels')
 	
