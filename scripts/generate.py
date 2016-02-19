@@ -84,19 +84,22 @@ def feature_selection():
 		
 		category = data['Category'][0]
 		print 'Processing ' + category
+		print str(data.shape[0]) + ' documents'
 
 		sum_vector = data.sum(numeric_only=True)
 		if sum_vector.min() == 1 :
 			sum_vector = sum_vector[sum_vector >= sum_vector.median()]
 		
-		count_vector = data[data != 0].count(numeric_only=True)
-		count_vector = count_vector[sum_vector.index]
-		count_vector = count_vector / data.shape[0]
+		# count_vector = data[data != 0].count(numeric_only=True)
+		# count_vector = count_vector[sum_vector.index]
+		# count_vector = count_vector / data.shape[0]
 
-		samples = samples.append(count_vector, ignore_index=True)
+		sample = sum_vector
+		sample['Category'] = category
+		samples = samples.append(sample, ignore_index=True)
 
 	samples = samples.fillna(0)
-	_save_dataset(samples, 'feature_selection')
+	_save_dataset(samples, 'feature_selection_sum')
 
 	etime = time.time()
 	print 'Features selected'
@@ -110,7 +113,6 @@ def create_dataset():
 	print "Start time: " + time.ctime(stime)
 	
 	samples = pd.SparseDataFrame()
-	labels = []
 	
 	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
 	for data_file in data_files:
@@ -119,17 +121,14 @@ def create_dataset():
 
 		category = sample['Category'][0]
 
-		print 'Processing ' + category
-
-		labels.extend([category] * sample.shape[0])
+		print category + str(sample.shape[0])
 
 		sample = sample.iloc[:,1:].to_sparse(fill_value=0)
-		samples = samples.append(sample, ignore_index=True)
+		samples = samples.append(sample)
 	
 	# samples = samples.fillna(0)
 	print 'Saving database'
 	_save_dataset(samples, 'final_dataset')
-	_save_dataset(labels, 'labels')
 	
 	etime = time.time()
 	print 'Database created'
