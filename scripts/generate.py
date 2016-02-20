@@ -123,7 +123,7 @@ def create_dataset():
 
 		print category + ' ' + str(sample.shape[0])
 
-		sample = sample.ix[:,sample.columns.difference(['Category'])].to_sparse(fill_value=0)
+		sample = sample.ix[:,sample.columns - ['Category']].to_sparse(fill_value=0)
 		samples = samples.append(sample)
 	
 	# samples = samples.fillna(0)
