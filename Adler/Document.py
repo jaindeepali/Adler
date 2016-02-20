@@ -44,10 +44,7 @@ class Document(Base):
 			if not feature:
 				continue
 			
-			if feature in feature_list:
-				feature_list[feature] += int(freq)
-			else:
-				feature_list[feature] = int(freq)
+			feature_list[feature] = feature_list.get(feature, 0) + int(freq)
 		
 		return pd.DataFrame([feature_list])
 
