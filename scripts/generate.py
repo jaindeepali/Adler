@@ -4,6 +4,7 @@ import time
 import pickle
 
 import pandas as pd
+from sklearn.feature_selection import SelectKBest, chi2
 
 from Adler import Base, Document, Category
 
@@ -98,8 +99,28 @@ def feature_selection():
 		sample['Category'] = category
 		samples = samples.append(sample, ignore_index=True)
 
+	
 	samples = samples.fillna(0)
-	_save_dataset(samples, 'feature_selection_sum')
+	samples.index = samples['category']
+	del samples['category']
+	sum_vector = samples.sum()
+
+	# Remove very frequent and very rare words
+	s1 = sum_vector[sum_vector <= sum_vector.quantile(0.999)]
+	s2 = s2[s2 >= s2.quantile(0.2)]
+	samples = samples.loc[:, s2.index]
+
+	# Chi2 feature selection
+	feature_selector = SelectKBest(chi2, k=50000)
+	feature_selector.fit(samples, range(0, 12)) 
+	feature_scores = pd.DataFrame(feature_selector.scores_)
+	feature_scores.index = samples.columns
+
+	x = feature_selector.get_support()
+	selected_features = pd.DataFrame(samples.columns[x])
+
+	_save_dataset(selected_features, 'selected_features')
+	_save_dataset(feature_scores, 'feature_scores')
 
 	etime = time.time()
 	print 'Features selected'
@@ -114,6 +135,10 @@ def create_dataset():
 	
 	samples = pd.SparseDataFrame()
 	
+	feature_file = os.path.join(BaseOb.data_path, 'selected_features.csv')
+	selected_features = pd.read_csv(feature_file, index_col=0)
+	selected_features = set(selected_features)
+
 	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
 	for data_file in data_files:
 		
@@ -123,7 +148,9 @@ def create_dataset():
 
 		print category + ' ' + str(sample.shape[0])
 
-		sample = sample.ix[:,sample.columns - ['Category']].to_sparse(fill_value=0)
+		col = set(sample.columns)
+		sample = sample.ix[:, selected_features.intersection(col)].to_sparse(fill_value=0)
+
 		samples = samples.append(sample)
 	
 	# samples = samples.fillna(0)
@@ -139,8 +166,8 @@ def main():
 	# download_data()
 	# save_all_samples()
 	# merge_samples()
-	# create_dataset()
-	feature_selection()
+	create_dataset()
+	# feature_selection()
 
 if __name__ == '__main__':
 	main()
