@@ -137,7 +137,7 @@ def create_dataset():
 	
 	feature_file = os.path.join(BaseOb.data_path, 'selected_features.csv')
 	selected_features = pd.read_csv(feature_file, index_col=0)
-	selected_features = set(selected_features)
+	selected_features = set(selected_features['feature'])
 
 	data_files = glob.glob(os.path.join(BaseOb.final_dataset_path, '*'))
 	for data_file in data_files:
