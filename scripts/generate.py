@@ -133,7 +133,7 @@ def create_dataset():
 	print 'Creating dataset...'
 	print "Start time: " + time.ctime(stime)
 	
-	samples = pd.SparseDataFrame()
+	samples = pd.DataFrame()
 	
 	feature_file = os.path.join(BaseOb.data_path, 'selected_features.csv')
 	selected_features = pd.read_csv(feature_file, index_col=0)
@@ -149,12 +149,11 @@ def create_dataset():
 		print category + ' ' + str(sample.shape[0])
 
 		col = set(sample.columns)
-		sample = sample.ix[:, selected_features.intersection(col)].to_sparse(fill_value=0)
+		sample = sample.ix[:, selected_features.intersection(col)]
 
-		samples = samples.append(sample)
+		samples = samples.append(sample, ignore_index=True)
 	
-	# samples = samples.fillna(0)
-	print 'Saving database'
+	samples = samples.fillna(0)
 	_save_dataset(samples, 'final_dataset')
 	
 	etime = time.time()
