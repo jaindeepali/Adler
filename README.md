@@ -1,6 +1,6 @@
 ### Adler
 
-Ready-to-use text classification corpus generation from [TechTC-300 Test Collection](http://techtc.cs.technion.ac.il/techtc300/techtc300.html) .
+Ready-to-use text classification corpus generation from [TechTC-300 Test Collection](http://techtc.cs.technion.ac.il/techtc300/techtc300.html) . The final dataset uses chi-squared feature selection and tf-idf feature weighting. Classification is done using a [Decision-Jungle classifier in AzureML](http://gallery.cortanaintelligence.com/Experiment/de2c89307d8849feb90c1de6ccdeffdd) .
 
 ### Setup
 
